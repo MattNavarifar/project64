@@ -23,6 +23,7 @@ m_Gfx(NULL),
 m_Audio(NULL),
 m_RSP(NULL),
 m_Control(NULL),
+m_Netplay(NULL),
 m_initilized(false),
 m_SyncPlugins(SyncPlugins)
 {
@@ -155,6 +156,7 @@ void CPlugins::CreatePlugins(void)
     LoadPlugin(Game_Plugin_Audio, Plugin_AUDIO_CurVer, m_Audio, m_PluginDir.c_str(), m_AudioFile, TraceAudioPlugin, "Audio", m_SyncPlugins);
     LoadPlugin(Game_Plugin_RSP, Plugin_RSP_CurVer, m_RSP, m_PluginDir.c_str(), m_RSPFile, TraceRSPPlugin, "RSP", m_SyncPlugins);
     LoadPlugin(Game_Plugin_Controller, Plugin_CONT_CurVer, m_Control, m_PluginDir.c_str(), m_ControlFile, TraceControllerPlugin, "Control", m_SyncPlugins);
+    LoadPlugin(Game_Plugin_Netplay, Plugin_NETPLAY_CurVer, m_Netplay, m_PluginDir.c_str(), m_NetplayFile, TraceNetplayPlugin, "Netplay", m_SyncPlugins);
 
     //Enable debugger
     if (m_RSP != NULL && m_RSP->EnableDebugging)
@@ -183,6 +185,10 @@ void CPlugins::GameReset(void)
     if (m_Control)
     {
         m_Control->GameReset(m_MainWindow);
+    }
+    if (m_Netplay)
+    {
+        m_Netplay->GameReset(m_MainWindow);
     }
 }
 
@@ -251,6 +257,21 @@ void CPlugins::DestroyControlPlugin(void)
     //		g_Settings->UnknownSetting_CTRL = NULL;
 }
 
+void CPlugins::DestroyNetplayPlugin(void)
+{
+    if (m_Netplay == NULL)
+    {
+        return;
+    }
+    WriteTrace(TraceNetplayPlugin, TraceDebug, "before close");
+    m_Control->Close(m_MainWindow);
+    WriteTrace(TraceNetplayPlugin, TraceDebug, "before delete");
+    delete m_Netplay;
+    m_Control = NULL;
+    WriteTrace(TraceNetplayPlugin, TraceDebug, "after delete");
+    //		g_Settings->UnknownSetting_CTRL = NULL;
+}
+
 void CPlugins::SetRenderWindows(RenderWindow * MainWindow, RenderWindow * SyncWindow)
 {
     WriteTrace(TracePlugins, TraceDebug, "MainWindow = %p SyncWindow = %p", MainWindow, SyncWindow);
@@ -266,6 +287,7 @@ void CPlugins::RomOpened(void)
     m_RSP->RomOpened(m_MainWindow);
     m_Audio->RomOpened(m_MainWindow);
     m_Control->RomOpened(m_MainWindow);
+    m_Netplay->RomOpened(m_MainWindow);
 
     WriteTrace(TracePlugins, TraceDebug, "Done");
 }
@@ -278,6 +300,7 @@ void CPlugins::RomClosed(void)
     m_RSP->RomClose(m_MainWindow);
     m_Audio->RomClose(m_MainWindow);
     m_Control->RomClose(m_MainWindow);
+    m_Netplay->RomClose(m_MainWindow);
 
     WriteTrace(TracePlugins, TraceDebug, "Done");
 }
@@ -290,6 +313,7 @@ bool CPlugins::Initiate(CN64System * System)
     if (m_Audio == NULL) { return false; }
     if (m_RSP == NULL) { return false; }
     if (m_Control == NULL) { return false; }
+    if (m_Netplay == NULL) { return false; }
 
     WriteTrace(TraceGFXPlugin, TraceDebug, "Gfx Initiate Starting");
     if (!m_Gfx->Initiate(System, m_MainWindow))   { return false; }
@@ -303,6 +327,9 @@ bool CPlugins::Initiate(CN64System * System)
     WriteTrace(TraceRSPPlugin, TraceDebug, "RSP Initiate Starting");
     if (!m_RSP->Initiate(this, System))   { return false; }
     WriteTrace(TraceRSPPlugin, TraceDebug, "RSP Initiate Done");
+    WriteTrace(TracePlugins, TraceDebug, "Done");
+    if (!m_Netplay->Initiate(this, System)) { return false; }
+    WriteTrace(TraceRSPPlugin, TraceDebug, "Netplay Initiate Done");
     WriteTrace(TracePlugins, TraceDebug, "Done");
     m_initilized = true;
     return true;
@@ -325,6 +352,7 @@ bool CPlugins::Reset(CN64System * System)
     bool bAudioChange = _stricmp(m_AudioFile.c_str(), g_Settings->LoadStringVal(Game_Plugin_Audio).c_str()) != 0;
     bool bRspChange = _stricmp(m_RSPFile.c_str(), g_Settings->LoadStringVal(Game_Plugin_RSP).c_str()) != 0;
     bool bContChange = _stricmp(m_ControlFile.c_str(), g_Settings->LoadStringVal(Game_Plugin_Controller).c_str()) != 0;
+    bool bNetplayChange = _stricmp(m_ControlFile.c_str(), g_Settings->LoadStringVal(Game_Plugin_Controller).c_str()) != 0;
 
     //if GFX and Audio has changed we also need to force reset of RSP
     if (bGfxChange || bAudioChange)
@@ -336,6 +364,7 @@ bool CPlugins::Reset(CN64System * System)
     if (bAudioChange) { DestroyAudioPlugin(); }
     if (bRspChange) { DestroyRspPlugin(); }
     if (bContChange) { DestroyControlPlugin(); }
+    if (bNetplayChange) { DestroyNetplayPlugin(); }
 
     CreatePlugins();
 
@@ -362,6 +391,12 @@ bool CPlugins::Reset(CN64System * System)
         WriteTrace(TraceRSPPlugin, TraceDebug, "RSP Initiate Starting");
         if (!m_RSP->Initiate(this, System)) { return false; }
         WriteTrace(TraceRSPPlugin, TraceDebug, "RSP Initiate Done");
+    }
+    if (m_Netplay && bNetplayChange)
+    {
+        WriteTrace(TraceNetplayPlugin, TraceDebug, "NetPlay Initiate Starting");
+        if (!m_RSP->Initiate(this, System)) { return false; }
+        WriteTrace(TraceNetplayPlugin, TraceDebug, "NetPlay Initiate Done");
     }
 
 	if (System)
@@ -424,6 +459,17 @@ void CPlugins::ConfigPlugin(void* hParent, PLUGIN_TYPE Type)
             }
         }
         m_Control->DllConfig(hParent);
+        break;
+    case PLUGIN_TYPE_NETPLAY:
+        if (m_Netplay == NULL || m_Netplay->DllConfig == NULL) { break; }
+        if (!m_Netplay->Initialized())
+        {
+            if (!m_Netplay->Initiate(this, NULL))
+            {
+                break;
+            }
+        }
+        m_Netplay->DllConfig(hParent);
         break;
     case PLUGIN_TYPE_NONE:
     default:
@@ -489,6 +535,19 @@ bool CPlugins::CopyPlugins(const stdstr & DstDir) const
     //Copy Controller Plugin
     CPath srcContPlugin(m_PluginDir.c_str(), g_Settings->LoadStringVal(Game_Plugin_Controller).c_str());
     CPath dstContPlugin(DstDir.c_str(), g_Settings->LoadStringVal(Game_Plugin_Controller).c_str());
+    dstContPlugin.SetName(stdstr_f("%s-copy", dstContPlugin.GetName().c_str()).c_str());
+    if (!dstContPlugin.DirectoryExists())
+    {
+        dstContPlugin.DirectoryCreate();
+    }
+    if (!srcContPlugin.CopyTo(dstContPlugin))
+    {
+        return false;
+    }
+
+    //Copy Netplay Plugin
+    CPath srcNetplayPlugin(m_PluginDir.c_str(), g_Settings->LoadStringVal(Game_Plugin_Netplay).c_str());
+    CPath dstNetplayPlugin(DstDir.c_str(), g_Settings->LoadStringVal(Game_Plugin_Netplay).c_str());
     dstContPlugin.SetName(stdstr_f("%s-copy", dstContPlugin.GetName().c_str()).c_str());
     if (!dstContPlugin.DirectoryExists())
     {

@@ -138,6 +138,7 @@ enum SettingID
     Game_Plugin_Audio,
     Game_Plugin_Controller,
     Game_Plugin_RSP,
+    Game_Plugin_Netplay,
     Game_SaveChip,
     Game_CpuType,
     Game_LastSaveSlot,
@@ -303,6 +304,8 @@ enum SettingID
     Plugin_AUDIO_CurVer,
     Plugin_CONT_Current,
     Plugin_CONT_CurVer,
+    Plugin_NETPLAY_CurVer,
+    Plugin_NETPLAY_Current,
     Plugin_UseHleGfx,
     Plugin_UseHleAudio,
     Plugin_EnableAudio,
@@ -363,4 +366,6 @@ enum SettingID
     FirstAudioSettings, LastAudioSettings = FirstAudioSettings + MaxPluginSetting,
     FirstCtrlDefaultSet, LastCtrlDefaultSet = FirstCtrlDefaultSet + MaxPluginSetting,
     FirstCtrlSettings, LastCtrlSettings = FirstCtrlSettings + MaxPluginSetting,
+    FirstNetplayDefaultSet, LastNetplayDefaultSet = FirstNetplayDefaultSet + MaxPluginSetting,
+    FirstNetplaySettings, LastNetplaySettings = FirstNetplayDefaultSet + MaxPluginSetting,
 };

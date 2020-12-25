@@ -93,6 +93,7 @@
     <ClCompile Include="Plugins\AudioPlugin.cpp" />
     <ClCompile Include="Plugins\ControllerPlugin.cpp" />
     <ClCompile Include="Plugins\GFXPlugin.cpp" />
+    <ClCompile Include="Plugins\NetplayPlugin.cpp" />
     <ClCompile Include="Plugins\PluginBase.cpp" />
     <ClCompile Include="Plugins\PluginClass.cpp" />
     <ClCompile Include="Plugins\RSPPlugin.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="Plugins\AudioPlugin.h" />
     <ClInclude Include="Plugins\ControllerPlugin.h" />
     <ClInclude Include="Plugins\GFXPlugin.h" />
+    <ClInclude Include="Plugins\NetplayPlugin.h" />
     <ClInclude Include="Plugins\PluginBase.h" />
     <ClInclude Include="Plugins\PluginClass.h" />
     <ClInclude Include="Plugins\RSPPlugin.h" />

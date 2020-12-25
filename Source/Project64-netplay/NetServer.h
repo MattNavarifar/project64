@@ -1,23 +1,19 @@
 /****************************************************************************
 *                                                                           *
-* Project64 - A Nintendo 64 emulator.                                      *
+* Project64-Netplay					                                        *
 * http://www.pj64-emu.com/                                                  *
-* Copyright (C) 2012 Project64. All rights reserved.                        *
+* Copyright (C) 2021 Project64. All rights reserved.                        *
 *                                                                           *
 * License:                                                                  *
 * GNU/GPLv2 http://www.gnu.org/licenses/gpl-2.0.html                        *
+*																			*
+* @author - Matt Navarifar													*
 *                                                                           *
 ****************************************************************************/
 #pragma once
 
-//Plugin controller
-#include <Project64-core/Plugins/PluginClass.h>
+class NetServer {
+public:
+	NetServer(void);
 
-//Base Plugin class, all plugin derive from this, handles core  functions
-#include <Project64-core/Plugins/PluginBase.h>
-
-#include "Plugins/GFXPlugin.h"
-#include <Project64-core/Plugins/AudioPlugin.h>
-#include "Plugins/ControllerPlugin.h"
-#include "Plugins/RSPPlugin.h"
-#include <Project64-core/Plugins/NetplayPlugin.h>
+};

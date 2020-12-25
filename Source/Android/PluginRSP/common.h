@@ -40,6 +40,7 @@ enum
     PLUGIN_TYPE_GFX = 2,
     PLUGIN_TYPE_AUDIO = 3,
     PLUGIN_TYPE_CONTROLLER = 4,
+    PLUGIN_TYPE_NETPLAY = 5,
 };
 
 /***** Structures *****/

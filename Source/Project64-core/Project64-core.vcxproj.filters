@@ -345,6 +345,9 @@
     <ClCompile Include="N64System\CheatFile.cpp">
       <Filter>Source Files\N64 System</Filter>
     </ClCompile>
+    <ClCompile Include="Plugins\NetplayPlugin.cpp">
+      <Filter>Source Files\Plugins</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -667,6 +670,9 @@
     </ClInclude>
     <ClInclude Include="N64System\CheatFile.h">
       <Filter>Header Files\N64 System</Filter>
+    </ClInclude>
+    <ClInclude Include="Plugins\NetplayPlugin.h">
+      <Filter>Header Files\Plugins</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

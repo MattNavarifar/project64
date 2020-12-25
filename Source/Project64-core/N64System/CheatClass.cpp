@@ -16,6 +16,7 @@
 #include <Project64-core/Plugins/AudioPlugin.h>
 #include <Project64-core/Plugins/RSPPlugin.h>
 #include <Project64-core/Plugins/ControllerPlugin.h>
+#include <Project64-core/Plugins/NetplayPlugin.h>
 #include <Project64-core/N64System/SystemGlobals.h>
 #include <Project64-core/N64System/Recompiler/RecompilerClass.h>
 #include <stdlib.h>

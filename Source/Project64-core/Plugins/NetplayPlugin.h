@@ -9,15 +9,25 @@
 *                                                                           *
 ****************************************************************************/
 #pragma once
-
-//Plugin controller
-#include <Project64-core/Plugins/PluginClass.h>
-
-//Base Plugin class, all plugin derive from this, handles core  functions
 #include <Project64-core/Plugins/PluginBase.h>
 
-#include "Plugins/GFXPlugin.h"
-#include <Project64-core/Plugins/AudioPlugin.h>
-#include "Plugins/ControllerPlugin.h"
-#include "Plugins/RSPPlugin.h"
-#include <Project64-core/Plugins/NetplayPlugin.h>
+class CNetplayPlugin : public CPlugin
+{
+
+private:
+	CNetplayPlugin(const CNetplayPlugin&);				// Disable copy constructor
+	CNetplayPlugin& operator=(const CNetplayPlugin&);	// Disable assignment
+
+	virtual int32_t GetDefaultSettingStartRange() const { return FirstNetplayDefaultSet; }
+	virtual int32_t GetSettingStartRange() const { return FirstNetplaySettings; }
+	PLUGIN_TYPE type() { return PLUGIN_TYPE_NETPLAY; }
+	virtual void UnloadPluginDetails(void);
+
+public:
+	CNetplayPlugin(void);
+	~CNetplayPlugin();
+
+	bool LoadFunctions(void);
+	bool Initiate(CPlugins* Plugins, CN64System* System);
+
+};

@@ -8,16 +8,33 @@
 * GNU/GPLv2 http://www.gnu.org/licenses/gpl-2.0.html                        *
 *                                                                           *
 ****************************************************************************/
-#pragma once
+#include "StdAfx.h"
+#include <Project64-core/N64System/SystemGlobals.h>
+#include <Project64-core/N64System/N64RomClass.h>
+#include <Project64-core/N64System/Mips/MemoryVirtualMem.h>
+#include <iostream>
+#include "NetplayPlugin.h"
 
-//Plugin controller
-#include <Project64-core/Plugins/PluginClass.h>
+void CNetplayPlugin::UnloadPluginDetails(void)
+{
+}
 
-//Base Plugin class, all plugin derive from this, handles core  functions
-#include <Project64-core/Plugins/PluginBase.h>
+CNetplayPlugin::CNetplayPlugin(void)
+{
+	std::cout << "Hello World!" << std::endl;
+}
 
-#include "Plugins/GFXPlugin.h"
-#include <Project64-core/Plugins/AudioPlugin.h>
-#include "Plugins/ControllerPlugin.h"
-#include "Plugins/RSPPlugin.h"
-#include <Project64-core/Plugins/NetplayPlugin.h>
+CNetplayPlugin::~CNetplayPlugin()
+{
+	UnloadPlugin();
+}
+
+bool CNetplayPlugin::LoadFunctions(void)
+{
+	return true;
+}
+
+bool CNetplayPlugin::Initiate(CPlugins* Plugins, CN64System* System)
+{
+	return true;
+}

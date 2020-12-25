@@ -208,6 +208,7 @@ void CSettings::AddHowToHandleSetting(const char * BaseDirectory)
     AddHandler(Game_Plugin_Audio, new CSettingTypeGame("Plugin-Audio", Plugin_AUDIO_Current));
     AddHandler(Game_Plugin_Controller, new CSettingTypeGame("Plugin-Controller", Plugin_CONT_Current));
     AddHandler(Game_Plugin_RSP, new CSettingTypeGame("Plugin-RSP", Plugin_RSP_Current));
+    AddHandler(Game_Plugin_Netplay, new CSettingTypeGame("Plugin-NetPlay", Plugin_NETPLAY_Current));
     AddHandler(Game_SaveChip, new CSettingTypeGame("SaveChip", Rdb_SaveChip));
     AddHandler(Game_CpuType, new CSettingTypeGame("CpuType", Rdb_CpuType));
     AddHandler(Game_LastSaveSlot, new CSettingTypeGame("Last Used Save Slot", (uint32_t)0));
@@ -387,10 +388,12 @@ void CSettings::AddHowToHandleSetting(const char * BaseDirectory)
 	AddHandler(Plugin_GFX_Current, new CSettingTypeApplication("Plugin", "Graphics Dll", "GFX\\Project64-Video_d.dll"));
 	AddHandler(Plugin_AUDIO_Current, new CSettingTypeApplication("Plugin", "Audio Dll", "Audio\\Project64-Audio_d.dll"));
     AddHandler(Plugin_CONT_Current, new CSettingTypeApplication("Plugin", "Controller Dll", "Input\\Project64-Input_d.dll"));
+    AddHandler(Plugin_NETPLAY_Current, new CSettingTypeApplication("Plugin", "NetPlay Dll", "NetPlay\\Project64-NetPlay.dll"));
 #else
 	AddHandler(Plugin_GFX_Current, new CSettingTypeApplication("Plugin", "Graphics Dll", "GFX\\Project64-Video.dll"));
 	AddHandler(Plugin_AUDIO_Current, new CSettingTypeApplication("Plugin", "Audio Dll", "Audio\\Project64-Audio.dll"));
     AddHandler(Plugin_CONT_Current, new CSettingTypeApplication("Plugin", "Controller Dll", "Input\\Project64-Input.dll"));
+    AddHandler(Plugin_NETPLAY_Current, new CSettingTypeApplication("Plugin", "NetPlay Dll", "NetPlay\\Project64-NetPlay.dll"));
 #endif
 #else
     AddHandler(Plugin_RSP_Current, new CSettingTypeApplication("Plugin", "RSP Dll", "libProject64-rsp-hle.so"));
@@ -402,6 +405,7 @@ void CSettings::AddHowToHandleSetting(const char * BaseDirectory)
     AddHandler(Plugin_GFX_CurVer, new CSettingTypeApplication("Plugin", "Graphics Dll Ver", ""));
     AddHandler(Plugin_AUDIO_CurVer, new CSettingTypeApplication("Plugin", "Audio Dll Ver", ""));
     AddHandler(Plugin_CONT_CurVer, new CSettingTypeApplication("Plugin", "Controller Dll Ver", ""));
+    AddHandler(Plugin_NETPLAY_CurVer, new CSettingTypeApplication("Plugin", "NetPlay Dll Ver", ""));
 
 	AddHandler(Plugin_UseHleGfx, new CSettingTypeApplication("RSP", "HLE GFX Plugin", Default_UseHleGfx));
     AddHandler(Plugin_UseHleAudio, new CSettingTypeApplication("RSP", "HLE Audio Plugin", false));

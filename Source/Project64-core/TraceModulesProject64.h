@@ -12,6 +12,7 @@ enum TraceModuleProject64
     TraceGFXPlugin,
     TraceAudioPlugin,
     TraceControllerPlugin,
+    TraceNetplayPlugin,
     TraceRSPPlugin,
     TraceRSP,
     TraceAudio,
