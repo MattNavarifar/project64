@@ -11,9 +11,14 @@
 *                                                                           *
 ****************************************************************************/
 #pragma once
+#include <iostream>
+#include <asio.hpp>
 
 class NetServer {
 public:
 	NetServer(void);
+
+private:
+	asio::io_context io;
 
 };
