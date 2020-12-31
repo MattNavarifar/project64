@@ -11,15 +11,8 @@
 *                                                                           *
 ****************************************************************************/
 #pragma once
-#include <iostream>
-#include <asio.hpp>
 
-class NNetServer {
-public:
-	NNetServer(void);
-	~NNetServer();
-
-private:
-	asio::io_context io;
-
-};
+#ifdef _WIN32
+void ConfigInit(void* hinst);
+void ConfigCleanup(void);
+#endif

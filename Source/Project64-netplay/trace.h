@@ -11,15 +11,16 @@
 *                                                                           *
 ****************************************************************************/
 #pragma once
-#include <iostream>
-#include <asio.hpp>
+#include <Common/TraceModulesCommon.h>
+#include <Common/Trace.h>
 
-class NNetServer {
-public:
-	NNetServer(void);
-	~NNetServer();
-
-private:
-	asio::io_context io;
-
+enum TraceModuleNetPlay
+{
+    TraceNetPlayServer = 0,
+    TraceDLL,
+    MaxTraceModuleNetPlay,
 };
+
+void SetupTrace(void);
+void StartTrace(void);
+void StopTrace(void);

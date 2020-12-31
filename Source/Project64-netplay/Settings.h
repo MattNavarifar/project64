@@ -11,15 +11,25 @@
 *                                                                           *
 ****************************************************************************/
 #pragma once
-#include <iostream>
-#include <asio.hpp>
 
-class NNetServer {
+class CSettings
+{
 public:
-	NNetServer(void);
-	~NNetServer();
+    CSettings();
+    ~CSettings();
+
+    inline const char* log_dir(void) const { return m_log_dir; }
+    inline bool FlushLogs(void) const { return m_FlushLogs; }
 
 private:
-	asio::io_context io;
+    void LogLevelChanged(void);
 
+private:
+    bool m_FlushLogs;
+    short m_Set_log_dir;
+    short m_Set_log_flush;
+    char m_log_dir[260];
+    
 };
+
+extern CSettings* g_settings;

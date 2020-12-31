@@ -11,15 +11,9 @@
 *                                                                           *
 ****************************************************************************/
 #pragma once
-#include <iostream>
-#include <asio.hpp>
 
-class NNetServer {
-public:
-	NNetServer(void);
-	~NNetServer();
-
-private:
-	asio::io_context io;
-
+enum
+{
+    //Logging Settings
+    Set_Logging_MD5
 };

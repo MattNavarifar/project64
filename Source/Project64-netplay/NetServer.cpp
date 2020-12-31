@@ -1,6 +1,11 @@
 #include "NetServer.h"
 
-NetServer::NetServer(void)
+NNetServer::NNetServer(void)
+{
+	
+}
+
+NNetServer::~NNetServer()
 {
 
 }

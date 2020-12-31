@@ -6,6 +6,7 @@ Netplay plugin spec, version #1.0
 
 #include <Common/stdtypes.h>
 #include <stdio.h>
+#include "Settings.h"
 
 /* Plugin types */
 #define PLUGIN_TYPE_NETPLAY				5
@@ -28,6 +29,24 @@ typedef struct
     int32_t MemoryBswaped;
 } PLUGIN_INFO;
 
+/******************************************************************
+Function: CloseDLL
+Purpose:  This function is called when the emulator is closing
+down allowing the dll to de-initialise.
+input:    none
+output:   none
+*******************************************************************/
+EXPORT void CALL CloseDLL(void);
+
+/******************************************************************
+Function: StartServer
+*******************************************************************/
+EXPORT bool CALL StartServer(void);
+
+/******************************************************************
+Function: StopServer
+*******************************************************************/
+EXPORT bool CALL StopServer(void);
 
 /******************************************************************
 Function: RomClosed
@@ -47,11 +66,18 @@ output:   none
 EXPORT void CALL RomOpen(void);
 
 /******************************************************************
-    Function: GetDllInfo
-    Purpose:  This function allows the emulator to gather information
-    about the dll by filling in the PluginInfo structure.
-    input:    a pointer to a PLUGIN_INFO stucture that needs to be
-    filled by the function. (see def above)
-    output:   none
-    *******************************************************************/
+Function: GetDllInfo
+Purpose:  This function allows the emulator to gather information
+about the dll by filling in the PluginInfo structure.
+input:    a pointer to a PLUGIN_INFO stucture that needs to be
+filled by the function. (see def above)
+output:   none
+*******************************************************************/
 EXPORT void CALL GetDllInfo(PLUGIN_INFO* PluginInfo);
+
+/******************************************************************
+Function: PluginLoaded
+Purpose:  This function is the entry point for when the plugin is
+loaded.
+*******************************************************************/
+EXPORT void CALL PluginLoaded(void);

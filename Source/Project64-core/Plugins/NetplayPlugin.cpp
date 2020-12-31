@@ -15,10 +15,6 @@
 #include <iostream>
 #include "NetplayPlugin.h"
 
-void CNetplayPlugin::UnloadPluginDetails(void)
-{
-}
-
 CNetplayPlugin::CNetplayPlugin(void)
 {
 	std::cout << "Hello World!" << std::endl;
@@ -36,5 +32,26 @@ bool CNetplayPlugin::LoadFunctions(void)
 
 bool CNetplayPlugin::Initiate(CPlugins* Plugins, CN64System* System)
 {
+	bool(CALL * StartServer)(void);
+	_LoadFunction("StartServer", StartServer);
+	if (StartServer == NULL)
+	{
+		WriteTrace(TraceNetplayPlugin, TraceDebug, "Could not find the StartServer function within the netplay DLL");
+		return false;
+	}
+	StartServer();
 	return true;
+}
+
+
+void CNetplayPlugin::UnloadPluginDetails(void)
+{
+	bool(CALL * StopServer)(void);
+	_LoadFunction("StopServer", StopServer);
+	if (StopServer == NULL)
+	{
+		WriteTrace(TraceNetplayPlugin, TraceDebug, "Could not find the StopServer function within the netplay DLL");
+		return;
+	}
+	StopServer();
 }

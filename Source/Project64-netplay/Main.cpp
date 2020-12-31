@@ -12,10 +12,31 @@
 ****************************************************************************/
 #include "Netplay_1.0.h"
 #include "Version.h"
+#include "NetServer.h"
+#include <Settings/Settings.h>
+
+//#include <Common/StdString.h>
+#include <Common/CriticalSection.h>
+//#include <Common/DateTimeClass.h>
+//#include <Common/path.h>
+//#include <Common/SmartPointer.h>
+
+#include "Config.h"
+
 #ifdef _WIN32
 #include <Windows.h>
 #include <commctrl.h>
 #endif
+
+#ifdef _WIN32
+HINSTANCE hinstDLL = NULL;
+#endif
+
+#include "trace.h"
+
+NNetServer* NetServer;
+
+CSettings* g_settings = NULL;
 
 /******************************************************************
 Function: GetDllInfo
@@ -43,6 +64,51 @@ void CALL GetDllInfo(PLUGIN_INFO* PluginInfo)
 }
 
 /******************************************************************
+Function: CloseDLL
+Purpose:  This function is called when the emulator is closing
+down allowing the dll to de-initialise.
+input:    none
+output:   none
+*******************************************************************/
+void CALL CloseDLL(void)
+{
+    WriteTrace(TraceDLL, TraceInfo, "Closing DLL");
+
+
+    if (g_settings)
+    {
+        delete g_settings;
+        g_settings = NULL;
+    }
+    StopTrace();
+}
+
+void CALL PluginLoaded(void)
+{
+    SetupTrace();
+    if (g_settings == NULL)
+    {
+        g_settings = new CSettings;
+    }
+    StartTrace();
+
+    WriteTrace(TraceDLL, TraceInfo, "Start");
+    WriteTrace(TraceDLL, TraceInfo, "Done");
+}
+
+bool CALL StartServer(void)
+{
+    NetServer = new NNetServer();
+    return true;
+}
+
+bool CALL StopServer(void)
+{
+    delete NetServer;
+    return true;
+}
+
+/******************************************************************
 Function: RomClosed
 Purpose:  This function is called when a rom is closed.
 input:    none
@@ -56,3 +122,4 @@ void CALL RomClosed(void)
 #endif
     //TODO: Release resources here.
 }
+
