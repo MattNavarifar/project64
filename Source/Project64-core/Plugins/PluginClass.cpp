@@ -59,6 +59,7 @@ CPlugins::~CPlugins(void)
     DestroyAudioPlugin();
     DestroyRspPlugin();
     DestroyControlPlugin();
+    DestroyNetplayPlugin();
 }
 
 void CPlugins::PluginChanged(CPlugins * _this)
@@ -264,10 +265,10 @@ void CPlugins::DestroyNetplayPlugin(void)
         return;
     }
     WriteTrace(TraceNetplayPlugin, TraceDebug, "before close");
-    m_Control->Close(m_MainWindow);
+    m_Netplay->Close(m_MainWindow);
     WriteTrace(TraceNetplayPlugin, TraceDebug, "before delete");
     delete m_Netplay;
-    m_Control = NULL;
+    m_Netplay = NULL;
     WriteTrace(TraceNetplayPlugin, TraceDebug, "after delete");
     //		g_Settings->UnknownSetting_CTRL = NULL;
 }
