@@ -48,6 +48,18 @@ Function: StopServer
 *******************************************************************/
 EXPORT bool CALL StopServer(void);
 
+
+/******************************************************************
+Function: StartClient
+*******************************************************************/
+EXPORT bool CALL StartClient(void);
+
+/******************************************************************
+Function: StopClient
+*******************************************************************/
+EXPORT bool CALL StopClient(void);
+
+
 /******************************************************************
 Function: RomClosed
 Purpose:  This function is called when a rom is closed.

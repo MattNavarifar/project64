@@ -32,6 +32,7 @@ bool CNetplayPlugin::LoadFunctions(void)
 
 bool CNetplayPlugin::Initiate(CPlugins* Plugins, CN64System* System)
 {
+
 	bool(CALL * StartServer)(void);
 	_LoadFunction("StartServer", StartServer);
 	if (StartServer == NULL)
@@ -40,12 +41,23 @@ bool CNetplayPlugin::Initiate(CPlugins* Plugins, CN64System* System)
 		return false;
 	}
 	StartServer();
+
+	bool(CALL * StartClient)(void);
+	_LoadFunction("StartClient", StartClient);
+	if (StartClient == NULL)
+	{
+		WriteTrace(TraceNetplayPlugin, TraceDebug, "Could not find the StartClient function within the netplay DLL");
+		return false;
+	}
+	StartClient();
+
 	return true;
 }
 
 
 void CNetplayPlugin::UnloadPluginDetails(void)
 {
+
 	bool(CALL * StopServer)(void);
 	_LoadFunction("StopServer", StopServer);
 	if (StopServer == NULL)
@@ -54,4 +66,14 @@ void CNetplayPlugin::UnloadPluginDetails(void)
 		return;
 	}
 	StopServer();
+
+	bool(CALL * StopClient)(void);
+	_LoadFunction("StopClient", StopClient);
+	if (StopClient == NULL)
+	{
+		WriteTrace(TraceNetplayPlugin, TraceDebug, "Could not find the StopClient function within the netplay DLL");
+		return;
+	}
+	StopClient();
+
 }

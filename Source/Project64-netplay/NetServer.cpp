@@ -93,7 +93,6 @@ private:
 
 NNetServer::NNetServer(void)
 {
-
 	auto NetworkingEventLoop = []() {
 		try {
 			asio::io_context io_context;

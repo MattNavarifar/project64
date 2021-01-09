@@ -13,6 +13,7 @@
 #include "Netplay_1.0.h"
 #include "Version.h"
 #include "NetServer.h"
+#include "NetClient.h"
 #include <Settings/Settings.h>
 
 //#include <Common/StdString.h>
@@ -35,6 +36,7 @@ HINSTANCE hinstDLL = NULL;
 #include "trace.h"
 
 NNetServer* NetServer;
+NNetClient* NetClient;
 
 CSettings* g_settings = NULL;
 
@@ -106,6 +108,18 @@ bool CALL StopServer(void)
 {
     delete NetServer;
     return true;
+}
+
+bool CALL StartClient(void)
+{
+    NetClient = new NNetClient();
+    return false;
+}
+
+bool CALL StopClient(void)
+{
+    delete NetClient;
+    return false;
 }
 
 /******************************************************************
