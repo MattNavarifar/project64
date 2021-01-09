@@ -11,8 +11,12 @@
 *                                                                           *
 ****************************************************************************/
 #pragma once
-#include <iostream>
+#include <string>
 #include <asio.hpp>
+
+namespace std {
+	class thread;
+}
 
 class NNetServer {
 public:
@@ -20,6 +24,8 @@ public:
 	~NNetServer();
 
 private:
-	asio::io_context io;
+	std::thread m_ServerThread;
+
 
 };
+
