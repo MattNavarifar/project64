@@ -108,6 +108,7 @@ private:
     friend class CAudioPlugin;
     friend class CRSP_Plugin;
     friend class CControl_Plugin;
+    friend class CNetplayPlugin;
 
     //Recompiler has access to manipulate and call functions
     friend class CSystemTimer;

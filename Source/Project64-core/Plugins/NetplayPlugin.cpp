@@ -12,6 +12,7 @@
 #include <Project64-core/N64System/SystemGlobals.h>
 #include <Project64-core/N64System/N64RomClass.h>
 #include <Project64-core/N64System/Mips/MemoryVirtualMem.h>
+#include <Project64-core/N64System/N64Class.h>
 #include <iostream>
 #include "NetplayPlugin.h"
 
@@ -32,6 +33,24 @@ bool CNetplayPlugin::LoadFunctions(void)
 
 bool CNetplayPlugin::Initiate(CPlugins* Plugins, CN64System* System)
 {
+	typedef struct
+	{
+		uint8_t* RDRAM;
+	} NETPLAY_INFO;
+
+	CMipsMemoryVM& MMU = System->m_MMU_VM;
+	int32_t(CALL* Initialize)(NETPLAY_INFO Netplay_Info);
+	_LoadFunction("Initialize", Initialize);
+
+	if (Initialize == NULL)
+	{
+		WriteTrace(TraceNetplayPlugin, TraceDebug, "Could not find the Initialize function within the netplay DLL");
+		return false;
+	}
+
+	NETPLAY_INFO Info = { MMU.Rdram() };
+
+	Initialize(Info);
 
 	bool(CALL * StartServer)(void);
 	_LoadFunction("StartServer", StartServer);
@@ -75,5 +94,5 @@ void CNetplayPlugin::UnloadPluginDetails(void)
 		return;
 	}
 	StopClient();
-
+	
 }

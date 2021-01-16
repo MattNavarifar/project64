@@ -7,6 +7,7 @@ Netplay plugin spec, version #1.0
 #include <Common/stdtypes.h>
 #include <stdio.h>
 #include "Settings.h"
+#include <Common/StdString.h>
 
 /* Plugin types */
 #define PLUGIN_TYPE_NETPLAY				5
@@ -22,12 +23,20 @@ Netplay plugin spec, version #1.0
 /***** Structures *****/
 typedef struct
 {
+
     uint16_t Version;        /* Should be set to 0x0101 */
     uint16_t Type;           /* Set to PLUGIN_TYPE_AUDIO */
     char Name[100];          /* Name of the DLL */
     int32_t NormalMemory;
     int32_t MemoryBswaped;
 } PLUGIN_INFO;
+
+typedef struct
+{
+    uint8_t* RDRAM;
+} NETPLAY_INFO;
+
+extern NETPLAY_INFO NetplayInfo;
 
 /******************************************************************
 Function: CloseDLL
@@ -93,3 +102,10 @@ Purpose:  This function is the entry point for when the plugin is
 loaded.
 *******************************************************************/
 EXPORT void CALL PluginLoaded(void);
+
+/******************************************************************
+Function: InitiateNetplay
+Purpose: To pass in a reference to the VM meory in order to access and replicate
+memory from the emulator.
+*******************************************************************/
+EXPORT int CALL Initialize(NETPLAY_INFO NetplayInfo);

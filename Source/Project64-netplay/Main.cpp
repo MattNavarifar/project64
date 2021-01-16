@@ -16,7 +16,6 @@
 #include "NetClient.h"
 #include <Settings/Settings.h>
 
-//#include <Common/StdString.h>
 #include <Common/CriticalSection.h>
 //#include <Common/DateTimeClass.h>
 //#include <Common/path.h>
@@ -39,6 +38,8 @@ NNetServer* NetServer;
 NNetClient* NetClient;
 
 CSettings* g_settings = NULL;
+
+NETPLAY_INFO net;
 
 /******************************************************************
 Function: GetDllInfo
@@ -96,6 +97,18 @@ void CALL PluginLoaded(void)
 
     WriteTrace(TraceDLL, TraceInfo, "Start");
     WriteTrace(TraceDLL, TraceInfo, "Done");
+}
+
+//Todo: remove the 64-core dependency (additional include and linked lib) from netplay if we're not pulling in the mips object.
+int CALL Initialize(NETPLAY_INFO NetplayInfo)
+{
+    uint8_t* ram = NetplayInfo.RDRAM;
+    uint8_t val = ram[0 + 0x18EE00];
+
+    net = NetplayInfo;
+    
+    WriteTrace(TraceDLL, TraceInfo, "Val is: %d", val);
+    return 0;
 }
 
 bool CALL StartServer(void)
