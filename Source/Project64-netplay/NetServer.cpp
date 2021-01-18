@@ -10,12 +10,6 @@ std::mutex mtx;
 uint32_t INITIAL_CAPACITY = 1000;
 uint8_t LOAD_FACTOR = 2;
 
-std::string MakeDaytimeString()
-{
-	std::time_t now = time(0);
-	return ctime(&now);
-}
-
 class ByteBuffer {
 public:
 	ByteBuffer() :
@@ -48,6 +42,17 @@ public:
 		return m_Size;
 	}
 
+	void Clear()
+	{
+		if (!IsEmpty())
+		{
+			memset(Data(), 0, m_Size);
+			m_Size = 0;
+		}
+	}
+
+	inline bool IsEmpty() { return m_Size == 0; }
+
 private:
 	ByteBuffer(const ByteBuffer& other);
 	ByteBuffer& operator=(const ByteBuffer& other);
@@ -77,8 +82,9 @@ class tcp_connection : public std::enable_shared_from_this<tcp_connection>{
 public:
 	typedef std::shared_ptr<tcp_connection> pointer;
 
-	tcp_connection(asio::ip::tcp::socket& socket)
-		: m_Socket(std::move(socket))
+	tcp_connection(asio::ip::tcp::socket& socket, ByteBuffer* buffer)
+		: m_Socket(std::move(socket)),
+		m_Buffer(buffer)
 	{
 	}
 
@@ -87,54 +93,33 @@ public:
 		return m_Socket;
 	}
 
-	void start()
+	void SendBuffer()
 	{
 		auto self = shared_from_this();
 		auto writeHandler = [this, self](std::error_code ec, std::size_t length)
 		{
 			if (!ec)
 			{
-				HandleWrite(length);
+				OnWriteComplete();
 			}
 		};
-		m_Message = MakeDaytimeString();
 		asio::async_write(
 			m_Socket,
-			asio::buffer(m_Message),
-			writeHandler
-		);
-	}
-
-	void Send(ByteBuffer* buf)
-	{
-		auto self = shared_from_this();
-		auto writeHandler = [this, self](std::error_code ec, std::size_t length)
-		{
-			if (!ec)
-			{
-				HandleWrite(length);
-			}
-		};
-		m_Message = MakeDaytimeString();
-		asio::async_write(
-			m_Socket,
-			asio::buffer(buf->Data(), buf->Size()),
+			asio::buffer(m_Buffer->Data(), m_Buffer->Size()),
 			writeHandler
 		);
 	}
 
 private:
 
-	void HandleWrite(std::size_t length)
+	void OnWriteComplete()
 	{
-		if (length <= 0)
-		{
-			std::cerr << "blah" << std::endl;
-		}
+		//todo: handle write success here.
 	}
 
 	asio::ip::tcp::socket m_Socket;
 	std::string m_Message;
+	ByteBuffer* m_Buffer;
 };
 
 class tcp_server {
@@ -161,10 +146,7 @@ private:
 		{
 			if (!ec)
 			{
-				if (m_PendingBuffer->Size() > 0)
-				{
-					std::make_shared<tcp_connection>(socket)->Send(m_PendingBuffer);
-				}
+				std::make_shared<tcp_connection>(socket, m_PendingBuffer)->SendBuffer();
 				HandleAccept();
 			}
 		};
@@ -206,7 +188,7 @@ NNetServer::~NNetServer()
 	delete PendingBuffer;
 }
 
-void NNetServer::SendData(const byte* const& data, const uint16_t&& size)
+void NNetServer::SendData(const mem_byte* const& data, const uint16_t&& size)
 {
 	PendingBuffer->AddToBuffer(data, size);
 }

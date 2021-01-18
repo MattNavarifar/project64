@@ -14,8 +14,11 @@
 #include <string>
 #include <asio.hpp>
 #include <vector>
+#include <utility>
 
 typedef uint8_t byte;
+typedef int address;
+typedef std::pair<address, byte> mem_byte;
 
 namespace std {
 	class thread;
@@ -28,7 +31,7 @@ class NNetServer {
 public:
 	NNetServer(void);
 	~NNetServer();
-	void SendData(const byte*const & data, const uint16_t&& size);
+	void SendData(const mem_byte*const & data, const uint16_t&& size);
 
 private:
 	std::thread m_ServerThread;
