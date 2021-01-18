@@ -14,7 +14,7 @@ NNetClient::NNetClient()
 			resolver.resolve(
 				asio::ip::tcp::v4(), 
 				"localhost", 
-				"daytime"
+				"7133"
 			);
 		asio::ip::tcp::socket socket(io_context);
 		asio::connect(socket, results);

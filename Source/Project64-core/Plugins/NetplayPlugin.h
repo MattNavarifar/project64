@@ -27,6 +27,8 @@ public:
 	CNetplayPlugin(void);
 	~CNetplayPlugin();
 
+	void StartServer();
+	void StartClient();
 	bool LoadFunctions(void);
 	bool Initiate(CPlugins* Plugins, CN64System* System);
 

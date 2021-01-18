@@ -114,6 +114,12 @@ int CALL Initialize(NETPLAY_INFO NetplayInfo)
 bool CALL StartServer(void)
 {
     NetServer = new NNetServer();
+
+    uint8_t* ram = net.RDRAM;
+    uint8_t val = ram[0 + 0x18EE00];
+    uint8_t* buf = new uint8_t[1];
+    buf[0] = 5;
+    NetServer->SendData(buf, 1);
     return true;
 }
 

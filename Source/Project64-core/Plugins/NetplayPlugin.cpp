@@ -18,12 +18,36 @@
 
 CNetplayPlugin::CNetplayPlugin(void)
 {
-	std::cout << "Hello World!" << std::endl;
+
 }
 
 CNetplayPlugin::~CNetplayPlugin()
 {
 	UnloadPlugin();
+}
+
+void CNetplayPlugin::StartServer()
+{
+	bool(CALL * StartServer)(void);
+	_LoadFunction("StartServer", StartServer);
+	if (StartServer == NULL)
+	{
+		WriteTrace(TraceNetplayPlugin, TraceDebug, "Could not find the StartServer function within the netplay DLL");
+		return;
+	}
+	StartServer();
+}
+
+void CNetplayPlugin::StartClient()
+{
+	bool(CALL * StartClient)(void);
+	_LoadFunction("StartClient", StartClient);
+	if (StartClient == NULL)
+	{
+		WriteTrace(TraceNetplayPlugin, TraceDebug, "Could not find the StartClient function within the netplay DLL");
+		return;
+	}
+	StartClient();
 }
 
 bool CNetplayPlugin::LoadFunctions(void)
@@ -51,24 +75,6 @@ bool CNetplayPlugin::Initiate(CPlugins* Plugins, CN64System* System)
 	NETPLAY_INFO Info = { MMU.Rdram() };
 
 	Initialize(Info);
-
-	bool(CALL * StartServer)(void);
-	_LoadFunction("StartServer", StartServer);
-	if (StartServer == NULL)
-	{
-		WriteTrace(TraceNetplayPlugin, TraceDebug, "Could not find the StartServer function within the netplay DLL");
-		return false;
-	}
-	StartServer();
-
-	bool(CALL * StartClient)(void);
-	_LoadFunction("StartClient", StartClient);
-	if (StartClient == NULL)
-	{
-		WriteTrace(TraceNetplayPlugin, TraceDebug, "Could not find the StartClient function within the netplay DLL");
-		return false;
-	}
-	StartClient();
 
 	return true;
 }

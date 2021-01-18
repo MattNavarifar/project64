@@ -115,6 +115,12 @@ void CLanguage::LoadDefaultStrings(void)
     DEF_STR(MENU_SUPPORT_PROJECT64, "&Support Project64");
     DEF_STR(MENU_DISCORD, "&Discord");
 
+    //Netplay Menu
+    DEF_STR(MENU_NETPLAY, "&Netplay");
+    DEF_STR(MENU_HOST_SERVER, "&Host Server");
+    DEF_STR(MENU_JOIN_SERVER, "&Join Server");
+
+
     //Current Save Slot menu
     DEF_STR(MENU_SLOT_DEFAULT, "Default");
     DEF_STR(MENU_SLOT_1, "Slot 1");

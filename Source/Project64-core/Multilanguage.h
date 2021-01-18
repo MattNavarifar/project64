@@ -107,6 +107,11 @@ enum LanguageStringID
     MENU_WEBSITE = 184,
     MENU_SUPPORT_PROJECT64 = 185,
     MENU_DISCORD = 186,
+    
+    //Netplay Menu
+    MENU_NETPLAY = 187,
+    MENU_HOST_SERVER = 188,
+    MENU_JOIN_SERVER = 189,
 
     //Current Save Slot menu
     MENU_SLOT_DEFAULT = 190,

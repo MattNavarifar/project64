@@ -54,6 +54,9 @@ enum MainMenuID
 
     //Help Menu
     ID_HELP_SUPPORT_PROJECT64, ID_HELP_DISCORD, ID_HELP_WEBSITE, ID_HELP_ABOUT,
+
+    //Netplay Menu
+    ID_NETPLAY_HOST_SERVER, ID_NETPLAY_JOIN_SERVER,
 };
 
 class CMainMenu :
