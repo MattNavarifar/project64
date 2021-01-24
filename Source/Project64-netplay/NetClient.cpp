@@ -5,7 +5,8 @@
 #include <vector>
 #include <asio.hpp>
 
-NNetClient::NNetClient()
+NNetClient::NNetClient(uint8_t* ram)
+	: m_Memory(ram)
 {
 	auto ClientEventLoop = []() {
 		asio::io_context io_context;

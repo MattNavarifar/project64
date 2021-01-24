@@ -106,6 +106,12 @@ int CALL Initialize(NETPLAY_INFO NetplayInfo)
     uint8_t val = ram[0 + 0x18EE00];
 
     net = NetplayInfo;
+
+    if (NetServer)
+    {
+        NetServer->SendMemoryRange(MemRange{ 0x18EE00, 10, ram });
+    }
+    
     
     WriteTrace(TraceDLL, TraceInfo, "Val is: %d", val);
     return 0;
@@ -114,12 +120,6 @@ int CALL Initialize(NETPLAY_INFO NetplayInfo)
 bool CALL StartServer(void)
 {
     NetServer = new NNetServer();
-
-    uint8_t* ram = net.RDRAM;
-    uint8_t val = ram[0 + 0x18EE00];
-    mem_byte* buf = new mem_byte[1]; 
-    buf[0] = mem_byte{ 0x18EE00, 5 };
-    NetServer->SendData(buf, 1);
     return true;
 }
 
@@ -131,7 +131,7 @@ bool CALL StopServer(void)
 
 bool CALL StartClient(void)
 {
-    NetClient = new NNetClient();
+    NetClient = new NNetClient(net.RDRAM);
     return false;
 }
 

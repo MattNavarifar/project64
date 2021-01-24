@@ -10,34 +10,36 @@ std::mutex mtx;
 uint32_t INITIAL_CAPACITY = 1000;
 uint8_t LOAD_FACTOR = 2;
 
-class ByteBuffer {
+
+class DataBuffer {
 public:
-	ByteBuffer() :
+	DataBuffer() :
 		Capacity(INITIAL_CAPACITY),
 		m_Size(0),
 		Buffer(new byte[INITIAL_CAPACITY])
 	{
 	}
-	~ByteBuffer() {
+	~DataBuffer() {
 		delete Buffer;
 	}
-	void AddToBuffer(const byte* const& data, const uint16_t& size)
+	void AddToBuffer(const MemRange& memRange)
 	{
+		const uint32_t memRangeSizeBytes = memRange.GetSizeBytes();
 		const uint32_t remainingSize = Capacity - m_Size;
-		if (remainingSize <= 0 || remainingSize < size)
+		if (remainingSize <= 0 || remainingSize < memRangeSizeBytes)
 		{
-			IncreaseCapacity(size * LOAD_FACTOR);
+			IncreaseCapacity(memRange.GetSizeBytes() * LOAD_FACTOR);
 		}
-		memcpy(Last(), data, size);
-		m_Size += size;
+		memRange.Serialize(Last());
+		m_Size += memRangeSizeBytes;
 	}
 
-	inline byte* Data()
+	inline byte* Data() const
 	{
 		return Buffer;
 	}
 
-	inline uint32_t Size()
+	inline uint32_t Size() const
 	{
 		return m_Size;
 	}
@@ -54,8 +56,8 @@ public:
 	inline bool IsEmpty() { return m_Size == 0; }
 
 private:
-	ByteBuffer(const ByteBuffer& other);
-	ByteBuffer& operator=(const ByteBuffer& other);
+	DataBuffer(const DataBuffer& other);
+	DataBuffer& operator=(const DataBuffer& other);
 
 	void IncreaseCapacity(uint32_t amount)
 	{
@@ -82,9 +84,9 @@ class tcp_connection : public std::enable_shared_from_this<tcp_connection>{
 public:
 	typedef std::shared_ptr<tcp_connection> pointer;
 
-	tcp_connection(asio::ip::tcp::socket& socket, ByteBuffer* buffer)
+	tcp_connection(asio::ip::tcp::socket& socket, DataBuffer* & sendBuffer)
 		: m_Socket(std::move(socket)),
-		m_Buffer(buffer)
+		m_SendBuffer(sendBuffer)
 	{
 	}
 
@@ -96,18 +98,20 @@ public:
 	void SendBuffer()
 	{
 		auto self = shared_from_this();
-		auto writeHandler = [this, self](std::error_code ec, std::size_t length)
+		auto writeHandler = [this, self](std::error_code ec, std::size_t /*length*/)
 		{
 			if (!ec)
 			{
 				OnWriteComplete();
 			}
 		};
+
 		asio::async_write(
 			m_Socket,
-			asio::buffer(m_Buffer->Data(), m_Buffer->Size()),
+			asio::buffer(m_SendBuffer->Data(), m_SendBuffer->Size()),
 			writeHandler
 		);
+		
 	}
 
 private:
@@ -115,18 +119,20 @@ private:
 	void OnWriteComplete()
 	{
 		//todo: handle write success here.
+		m_SendBuffer->Clear();
+		SendBuffer();
 	}
 
 	asio::ip::tcp::socket m_Socket;
 	std::string m_Message;
-	ByteBuffer* m_Buffer;
+	DataBuffer* m_SendBuffer;
 };
 
 class tcp_server {
 public:
-	tcp_server(asio::io_context& io_context, ByteBuffer*& buffer) :
+	tcp_server(asio::io_context& io_context, DataBuffer* & sendBuffer) :
 		m_Acceptor(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 7133)),
-		m_PendingBuffer(buffer)
+		m_SendBuffer(sendBuffer)
 	{
 		StartAccept();
 	}
@@ -146,7 +152,7 @@ private:
 		{
 			if (!ec)
 			{
-				std::make_shared<tcp_connection>(socket, m_PendingBuffer)->SendBuffer();
+				std::make_shared<tcp_connection>(socket, m_SendBuffer)->SendBuffer();
 				HandleAccept();
 			}
 		};
@@ -162,13 +168,13 @@ private:
 private:
 	asio::io_context m_Io_Context;
 	asio::ip::tcp::acceptor m_Acceptor;
-	ByteBuffer* m_PendingBuffer;
+	DataBuffer* m_SendBuffer;
 };
 
 NNetServer::NNetServer(void)
 {
-	PendingBuffer = new ByteBuffer();
-	auto NetworkingEventLoop = [=]() {
+	PendingBuffer = new DataBuffer();
+	auto NetworkingEventLoop = [&]() {
 		try {
 			asio::io_context io_context;
 			tcp_server server(io_context, PendingBuffer);
@@ -188,7 +194,9 @@ NNetServer::~NNetServer()
 	delete PendingBuffer;
 }
 
-void NNetServer::SendData(const mem_byte* const& data, const uint16_t&& size)
+void NNetServer::SendMemoryRange(const MemRange& memRange)
 {
-	PendingBuffer->AddToBuffer(data, size);
+	//m_SendMemRanges.emplace_back(memRange);
+	PendingBuffer->AddToBuffer(memRange);
 }
+

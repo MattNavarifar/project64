@@ -18,24 +18,75 @@
 
 typedef uint8_t byte;
 typedef int address;
-typedef std::pair<address, byte> mem_byte;
+
+struct MemRange
+{
+	MemRange() :
+		m_Start(0),
+		m_Size(0),
+		m_Ram(nullptr)
+	{
+
+	}
+
+	MemRange operator=(const MemRange& other)
+	{
+		return MemRange(other.m_Start, other.m_Size, other.m_Ram);
+	}
+
+	MemRange(const uint32_t start, const uint16_t size, const uint8_t* const ram) :
+		m_Start(start),
+		m_Size(size),
+		m_Ram(ram)
+	{
+	}
+	~MemRange()
+	{
+	}
+
+	inline bool IsValid()
+	{
+		return m_Size; // part of our contract states we won't consider a valid MemRange with a size of 0. This is optimial for quickly terminating linear scans of MemRanges in a Vector like we do in tcpConnection.
+	}
+
+	void Serialize(byte* const buffer) const
+	{
+		byte* begin = buffer;
+		memcpy(begin, &m_Start, sizeof(m_Start));
+		begin += sizeof(m_Start);
+		memcpy(begin, &m_Size, sizeof(m_Size));
+		begin += sizeof(m_Size);
+		memcpy(begin, m_Ram + m_Start, m_Size);
+	}
+
+	inline uint32_t GetSizeBytes() const
+	{
+		return sizeof(m_Start) + sizeof(m_Size) + m_Size;
+	}
+
+private:
+	const uint32_t m_Start;
+	const byte* const m_Ram;
+	const uint16_t m_Size;
+};
 
 namespace std {
 	class thread;
 }
 
 
-class ByteBuffer;
+class DataBuffer;
 
 class NNetServer {
 public:
 	NNetServer(void);
 	~NNetServer();
-	void SendData(const mem_byte*const & data, const uint16_t&& size);
+	void SendMemoryRange(const MemRange & memRange);
 
 private:
 	std::thread m_ServerThread;
-	ByteBuffer* PendingBuffer;
+	DataBuffer* PendingBuffer;
+	//std::vector<MemRange> m_SendMemRanges;
 
 
 };
