@@ -4,9 +4,9 @@
 
 class NNetClient {
 public:
-	NNetClient(uint8_t* ram);
+	NNetClient();
 	~NNetClient();
+	void Start(uint8_t* ram);
 private:
 	std::thread m_ClientThread;
-	uint8_t* m_Memory;
 };

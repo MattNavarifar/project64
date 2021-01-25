@@ -5,80 +5,10 @@
 #include <thread>
 #include <mutex>
 
+#include "Network_Types.h"
+
 
 std::mutex mtx;
-uint32_t INITIAL_CAPACITY = 1000;
-uint8_t LOAD_FACTOR = 2;
-
-
-class DataBuffer {
-public:
-	DataBuffer() :
-		Capacity(INITIAL_CAPACITY),
-		m_Size(0),
-		Buffer(new byte[INITIAL_CAPACITY])
-	{
-	}
-	~DataBuffer() {
-		delete Buffer;
-	}
-	void AddToBuffer(const MemRange& memRange)
-	{
-		const uint32_t memRangeSizeBytes = memRange.GetSizeBytes();
-		const uint32_t remainingSize = Capacity - m_Size;
-		if (remainingSize <= 0 || remainingSize < memRangeSizeBytes)
-		{
-			IncreaseCapacity(memRange.GetSizeBytes() * LOAD_FACTOR);
-		}
-		memRange.Serialize(Last());
-		m_Size += memRangeSizeBytes;
-	}
-
-	inline byte* Data() const
-	{
-		return Buffer;
-	}
-
-	inline uint32_t Size() const
-	{
-		return m_Size;
-	}
-
-	void Clear()
-	{
-		if (!IsEmpty())
-		{
-			memset(Data(), 0, m_Size);
-			m_Size = 0;
-		}
-	}
-
-	inline bool IsEmpty() { return m_Size == 0; }
-
-private:
-	DataBuffer(const DataBuffer& other);
-	DataBuffer& operator=(const DataBuffer& other);
-
-	void IncreaseCapacity(uint32_t amount)
-	{
-		const byte* tmp = Buffer;
-		const uint32_t NewCapacity = Capacity + amount;
-		Buffer = new byte[NewCapacity];
-		memcpy(Buffer, tmp, NewCapacity);
-		Capacity = NewCapacity;
-	}
-
-	byte* const Last()
-	{
-		return Buffer + m_Size;
-	}
-
-private:
-	uint32_t Capacity;
-	uint32_t m_Size;
-	byte* Buffer;
-
-};
 
 class tcp_connection : public std::enable_shared_from_this<tcp_connection>{
 public:
@@ -98,11 +28,11 @@ public:
 	void SendBuffer()
 	{
 		auto self = shared_from_this();
-		auto writeHandler = [this, self](std::error_code ec, std::size_t /*length*/)
+		auto writeHandler = [this, self](std::error_code ec, std::size_t length)
 		{
 			if (!ec)
 			{
-				OnWriteComplete();
+				OnWriteComplete(length);
 			}
 		};
 
@@ -116,10 +46,13 @@ public:
 
 private:
 
-	void OnWriteComplete()
+	void OnWriteComplete(std::size_t length)
 	{
 		//todo: handle write success here.
-		m_SendBuffer->Clear();
+		if (length > 0)
+		{
+			m_SendBuffer->Clear();
+		}
 		SendBuffer();
 	}
 

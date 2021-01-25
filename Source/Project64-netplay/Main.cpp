@@ -14,6 +14,7 @@
 #include "Version.h"
 #include "NetServer.h"
 #include "NetClient.h"
+#include "Network_Types.h"
 #include <Settings/Settings.h>
 
 #include <Common/CriticalSection.h>
@@ -112,7 +113,10 @@ int CALL Initialize(NETPLAY_INFO NetplayInfo)
         NetServer->SendMemoryRange(MemRange{ 0x18EE00, 10, ram });
     }
     
-    
+    if (NetClient)
+    {
+        NetClient->Start(ram);
+    }
     WriteTrace(TraceDLL, TraceInfo, "Val is: %d", val);
     return 0;
 }
@@ -131,7 +135,7 @@ bool CALL StopServer(void)
 
 bool CALL StartClient(void)
 {
-    NetClient = new NNetClient(net.RDRAM);
+    NetClient = new NNetClient();
     return false;
 }
 

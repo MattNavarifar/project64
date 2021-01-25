@@ -1,20 +1,29 @@
 #include "NetClient.h"
 
 #include "trace.h"
+#include "Network_Types.h"
 
 #include <vector>
 #include <asio.hpp>
 
-NNetClient::NNetClient(uint8_t* ram)
-	: m_Memory(ram)
+NNetClient::NNetClient()
 {
-	auto ClientEventLoop = []() {
+	
+}
+
+NNetClient::~NNetClient()
+{
+}
+
+void NNetClient::Start(uint8_t* ram)
+{
+	auto ClientEventLoop = [=]() {
 		asio::io_context io_context;
 		asio::ip::tcp::resolver resolver{ io_context };
 		asio::ip::tcp::resolver::results_type results =
 			resolver.resolve(
-				asio::ip::tcp::v4(), 
-				"localhost", 
+				asio::ip::tcp::v4(),
+				"localhost",
 				"7133"
 			);
 		asio::ip::tcp::socket socket(io_context);
@@ -22,10 +31,10 @@ NNetClient::NNetClient(uint8_t* ram)
 
 		for (;;)
 		{
-			std::vector<char> buf(128);
+			std::vector<byte> buf(128);
 			asio::error_code ec;
 			size_t len = socket.read_some(
-				asio::buffer(buf), 
+				asio::buffer(buf),
 				ec
 			);
 			if (ec == asio::error::eof)
@@ -36,14 +45,17 @@ NNetClient::NNetClient(uint8_t* ram)
 			{
 				//todo: handle this.
 			}
+			else
+			{
+				MemRange memRange = MemRange::Deserialize(buf.data(), ram);
+				if (memRange.Size() > 0)
+				{
+					byte* data = buf.data() + sizeof(uint32_t) + sizeof(uint16_t);
+					memcpy(ram + memRange.GetStart(), data, memRange.Size());
+				}
+			}
 		}
 	};
 
 	m_ClientThread = std::move(std::thread(ClientEventLoop));
-
-	
-}
-
-NNetClient::~NNetClient()
-{
 }
