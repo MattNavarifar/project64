@@ -32,4 +32,7 @@ public:
 	bool LoadFunctions(void);
 	bool Initiate(CPlugins* Plugins, CN64System* System);
 
+private:
+	uint8_t* m_Ram;
+
 };

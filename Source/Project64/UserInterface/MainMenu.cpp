@@ -577,8 +577,8 @@ bool CMainMenu::ProcessMessage(HWND hWnd, DWORD /*FromAccelerator*/, DWORD MenuI
     case ID_HELP_DISCORD: ShellExecute(NULL, L"open", L"https://discord.gg/Cg3zquF", NULL, NULL, SW_SHOWMAXIMIZED); break;
     case ID_HELP_WEBSITE: ShellExecute(NULL, L"open", L"http://www.pj64-emu.com", NULL, NULL, SW_SHOWMAXIMIZED); break;
     case ID_HELP_ABOUT: CAboutDlg(m_Gui->Support()).DoModal(); break;
-    case ID_NETPLAY_HOST_SERVER: g_Plugins->Netplay()->StartServer();
-    case ID_NETPLAY_JOIN_SERVER: g_Plugins->Netplay()->StartClient();
+    case ID_NETPLAY_HOST_SERVER: g_Plugins->Netplay()->StartServer(); break;
+    case ID_NETPLAY_JOIN_SERVER: g_Plugins->Netplay()->StartClient(); break;
     default:
         if (MenuID >= ID_RECENT_ROM_START && MenuID < ID_RECENT_ROM_END)
         {

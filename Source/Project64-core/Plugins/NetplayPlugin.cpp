@@ -16,7 +16,7 @@
 #include <iostream>
 #include "NetplayPlugin.h"
 
-CNetplayPlugin::CNetplayPlugin(void)
+CNetplayPlugin::CNetplayPlugin(void) : m_Ram(NULL)
 {
 
 }
@@ -28,6 +28,16 @@ CNetplayPlugin::~CNetplayPlugin()
 
 void CNetplayPlugin::StartServer()
 {
+	if (m_Ram == NULL)
+	{
+		return;
+	}
+	byte memByte = *(m_Ram + 0x18EDEE);
+	if (memByte != 0x3)
+	{
+		return;
+	}
+
 	bool(CALL * StartServer)(void);
 	_LoadFunction("StartServer", StartServer);
 	if (StartServer == NULL)
@@ -40,6 +50,15 @@ void CNetplayPlugin::StartServer()
 
 void CNetplayPlugin::StartClient()
 {
+	if (m_Ram == NULL)
+	{
+		return;
+	}
+	byte memByte = *(m_Ram + 0x18EDEE);
+	if (memByte != 0x3)
+	{
+		return;
+	}
 	bool(CALL * StartClient)(void);
 	_LoadFunction("StartClient", StartClient);
 	if (StartClient == NULL)
@@ -63,6 +82,7 @@ bool CNetplayPlugin::Initiate(CPlugins* Plugins, CN64System* System)
 	} NETPLAY_INFO;
 
 	CMipsMemoryVM& MMU = System->m_MMU_VM;
+	m_Ram = MMU.Rdram();
 	int32_t(CALL* Initialize)(NETPLAY_INFO Netplay_Info);
 	_LoadFunction("Initialize", Initialize);
 
@@ -72,7 +92,7 @@ bool CNetplayPlugin::Initiate(CPlugins* Plugins, CN64System* System)
 		return false;
 	}
 
-	NETPLAY_INFO Info = { MMU.Rdram() };
+	NETPLAY_INFO Info = { m_Ram };
 
 	Initialize(Info);
 

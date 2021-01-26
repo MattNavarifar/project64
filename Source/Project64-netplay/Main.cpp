@@ -100,31 +100,28 @@ void CALL PluginLoaded(void)
     WriteTrace(TraceDLL, TraceInfo, "Done");
 }
 
-//Todo: remove the 64-core dependency (additional include and linked lib) from netplay if we're not pulling in the mips object.
 int CALL Initialize(NETPLAY_INFO NetplayInfo)
 {
     uint8_t* ram = NetplayInfo.RDRAM;
-    uint8_t val = ram[0 + 0x18EE00];
-
     net = NetplayInfo;
-
-    if (NetServer)
+    /*if (NetServer)
     {
         NetServer->Start();
         NetServer->SendMemoryRange(MemRange{ 0x18EDEE, 10}, ram);
-    }
+    }*/
     
-    if (NetClient)
+    /*if (NetClient)
     {
         NetClient->Start(ram);
-    }
-    WriteTrace(TraceDLL, TraceInfo, "Val is: %d", val);
+    }*/
     return 0;
 }
 
 bool CALL StartServer(void)
 {
     NetServer = new NNetServer();
+    NetServer->Start();
+    NetServer->SendMemoryRange(MemRange{ 0x18EDEE, 10 }, net.RDRAM);
     return true;
 }
 
@@ -137,6 +134,7 @@ bool CALL StopServer(void)
 bool CALL StartClient(void)
 {
     NetClient = new NNetClient();
+    NetClient->Start(net.RDRAM);
     return false;
 }
 
