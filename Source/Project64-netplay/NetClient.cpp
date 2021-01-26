@@ -47,8 +47,8 @@ void NNetClient::Start(uint8_t* ram)
 			}
 			else
 			{
-				MemRange memRange = MemRange::Deserialize(buf.data(), ram);
-				if (memRange.Size() > 0)
+				MemRange memRange = MemRange::Deserialize(buf.data());
+				if (memRange.IsValid())
 				{
 					byte* data = buf.data() + sizeof(uint32_t) + sizeof(uint16_t);
 					memcpy(ram + memRange.GetStart(), data, memRange.Size());

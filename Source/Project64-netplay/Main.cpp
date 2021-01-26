@@ -110,7 +110,8 @@ int CALL Initialize(NETPLAY_INFO NetplayInfo)
 
     if (NetServer)
     {
-        NetServer->SendMemoryRange(MemRange{ 0x18EE00, 10, ram });
+        NetServer->Start();
+        NetServer->SendMemoryRange(MemRange{ 0x18EDEE, 10}, ram);
     }
     
     if (NetClient)

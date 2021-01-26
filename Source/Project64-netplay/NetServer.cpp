@@ -107,6 +107,16 @@ private:
 NNetServer::NNetServer(void)
 {
 	PendingBuffer = new DataBuffer();
+	
+}
+
+NNetServer::~NNetServer()
+{
+	delete PendingBuffer;
+}
+
+void NNetServer::Start()
+{
 	auto NetworkingEventLoop = [&]() {
 		try {
 			asio::io_context io_context;
@@ -122,14 +132,9 @@ NNetServer::NNetServer(void)
 	m_ServerThread = std::move(std::thread(NetworkingEventLoop));
 }
 
-NNetServer::~NNetServer()
-{
-	delete PendingBuffer;
-}
-
-void NNetServer::SendMemoryRange(const MemRange& memRange)
+void NNetServer::SendMemoryRange(const MemRange& memRange, uint8_t* ram)
 {
 	//m_SendMemRanges.emplace_back(memRange);
-	PendingBuffer->AddToBuffer(memRange);
+	PendingBuffer->AddToBuffer(memRange, ram);
 }
 

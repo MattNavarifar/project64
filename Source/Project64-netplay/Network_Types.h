@@ -5,26 +5,37 @@
 
 typedef uint8_t byte;
 
+/*enum NetSerializableType
+{
+	Type_MemRange = 0
+};
+
+//template<NetSerializableType type>
+class NetSerializable
+{
+public:
+	virtual ~NetSerializable() = 0;
+	virtual void Serialize(byte* const buffer) const = 0;
+	//virtual uint32_t GetSizeBytes() const = 0;
+};*/
 
 struct MemRange
 {
 	MemRange() :
 		m_Start(0),
-		m_Size(0),
-		m_Ram(nullptr)
+		m_Size(0)
 	{
 
 	}
 
 	MemRange operator=(const MemRange& other)
 	{
-		return MemRange(other.m_Start, other.m_Size, other.m_Ram);
+		return MemRange(other.m_Start, other.m_Size);
 	}
 
-	MemRange(const uint32_t start, const uint16_t size, const uint8_t* const ram) :
+	MemRange(const uint32_t start, const uint16_t size) :
 		m_Start(start),
-		m_Size(size),
-		m_Ram(ram)
+		m_Size(size)
 	{
 	}
 	~MemRange()
@@ -36,29 +47,28 @@ struct MemRange
 		return m_Size; // part of our contract states we won't consider a valid MemRange with a size of 0. This is optimial for quickly terminating linear scans of MemRanges in a Vector like we do in tcpConnection.
 	}
 
-	void Serialize(byte* const buffer) const
+	virtual void Serialize(byte* const buffer) const
 	{
 		byte* begin = buffer;
 		memcpy(begin, &m_Start, sizeof(m_Start));
 		begin += sizeof(m_Start);
 		memcpy(begin, &m_Size, sizeof(m_Size));
-		begin += sizeof(m_Size);
-		memcpy(begin, m_Ram + m_Start, m_Size);
 	}
 
-	static MemRange Deserialize(byte* const buffer, const byte* const ram)
+	static MemRange Deserialize(byte* const buffer)
 	{
 		byte* begin = buffer;
-		const uint32_t start = (uint32_t)(*begin);
+		uint32_t start;
+		memcpy(&start, begin, sizeof(uint32_t));
 		begin += sizeof(uint32_t);
-		const uint16_t size = (uint16_t)(*begin);
-		begin += sizeof(uint16_t);
-		return MemRange(start, size, ram);
+		uint16_t size;
+		memcpy(&size, begin, sizeof(uint16_t));
+		return MemRange(start, size);
 	}
 
-	inline uint32_t GetSizeBytes() const
+	uint32_t GetSizeBytes() const
 	{
-		return sizeof(m_Start) + sizeof(m_Size) + m_Size;
+		return sizeof(m_Start) + sizeof(m_Size);
 	}
 
 	inline uint16_t Size() const
@@ -73,7 +83,6 @@ struct MemRange
 
 private:
 	const uint32_t m_Start;
-	const byte* const m_Ram;
 	const uint16_t m_Size;
 };
 
@@ -91,16 +100,19 @@ public:
 	~DataBuffer() {
 		delete Buffer;
 	}
-	void AddToBuffer(const MemRange& memRange)
+	void AddToBuffer(const MemRange& netSerial, byte* ram)
 	{
-		const uint32_t memRangeSizeBytes = memRange.GetSizeBytes();
+		const uint32_t memRangeSizeBytes = netSerial.GetSizeBytes();
 		const uint32_t remainingSize = Capacity - m_Size;
 		if (remainingSize <= 0 || remainingSize < memRangeSizeBytes)
 		{
-			IncreaseCapacity(memRange.GetSizeBytes() * LOAD_FACTOR);
+			IncreaseCapacity(netSerial.GetSizeBytes() * LOAD_FACTOR);
 		}
-		memRange.Serialize(Last());
-		m_Size += memRangeSizeBytes;
+		byte* begin = Last();
+		netSerial.Serialize(begin);
+		begin += memRangeSizeBytes;
+		memcpy(begin, ram + netSerial.GetStart(), netSerial.Size());
+		m_Size += memRangeSizeBytes + netSerial.Size();
 	}
 
 	inline byte* Data() const

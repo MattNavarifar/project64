@@ -27,7 +27,8 @@ class NNetServer {
 public:
 	NNetServer(void);
 	~NNetServer();
-	void SendMemoryRange(const MemRange & memRange);
+	void Start();
+	void SendMemoryRange(const MemRange & memRange, uint8_t* ram);
 
 private:
 	std::thread m_ServerThread;
