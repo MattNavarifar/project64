@@ -3,12 +3,8 @@
 #include <ctime>
 #include <iostream>
 #include <thread>
-#include <mutex>
 
 #include "Network_Types.h"
-
-
-std::mutex mtx;
 
 class tcp_connection : public std::enable_shared_from_this<tcp_connection>{
 public:
@@ -134,7 +130,6 @@ void NNetServer::Start()
 
 void NNetServer::SendMemoryRange(const MemRange& memRange, uint8_t* ram)
 {
-	//m_SendMemRanges.emplace_back(memRange);
 	PendingBuffer->AddToBuffer(memRange, ram);
 }
 

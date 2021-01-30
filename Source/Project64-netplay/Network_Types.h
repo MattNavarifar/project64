@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <mutex>
 
 typedef uint8_t byte;
 
@@ -94,7 +95,8 @@ public:
 	DataBuffer() :
 		Capacity(INITIAL_CAPACITY),
 		m_Size(0),
-		Buffer(new byte[INITIAL_CAPACITY])
+		Buffer(new byte[INITIAL_CAPACITY]),
+		m_Mutex()
 	{
 	}
 	~DataBuffer() {
@@ -102,6 +104,7 @@ public:
 	}
 	void AddToBuffer(const MemRange& netSerial, byte* ram)
 	{
+		m_Mutex.lock();
 		const uint32_t memRangeSizeBytes = netSerial.GetSizeBytes();
 		const uint32_t remainingSize = Capacity - m_Size;
 		if (remainingSize <= 0 || remainingSize < memRangeSizeBytes)
@@ -113,6 +116,7 @@ public:
 		begin += memRangeSizeBytes;
 		memcpy(begin, ram + netSerial.GetStart(), netSerial.Size());
 		m_Size += memRangeSizeBytes + netSerial.Size();
+		m_Mutex.unlock();
 	}
 
 	inline byte* Data() const
@@ -127,11 +131,13 @@ public:
 
 	void Clear()
 	{
+		m_Mutex.lock();
 		if (!IsEmpty())
 		{
 			memset(Data(), 0, m_Size);
 			m_Size = 0;
 		}
+		m_Mutex.unlock();
 	}
 
 	inline bool IsEmpty() { return m_Size == 0; }
@@ -158,5 +164,6 @@ private:
 	uint32_t Capacity;
 	uint32_t m_Size;
 	byte* Buffer;
+	std::mutex m_Mutex; //lock to prevent the server thread from clearing out the buffer while the mem_watcher thread adds to it.
 
 };
